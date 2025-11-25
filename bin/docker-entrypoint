@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+
+# ↓これ追加（サーバーの再起動対応）
+rm -f /app/tmp/pids/server.pid
+
+exec "${@}"
