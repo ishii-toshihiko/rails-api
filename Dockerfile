@@ -27,7 +27,6 @@ FROM base AS build
 COPY Gemfile Gemfile.lock ./
 
 COPY . .
-COPY config/master.key /app/config/master.key
 
 RUN mkdir -p db log storage tmp
 
