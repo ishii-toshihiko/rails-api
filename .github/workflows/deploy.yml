@@ -41,5 +41,5 @@
                --image=$IMAGE \
                --region=asia-northeast1 \
                --add-cloudsql-instances ishii-worksit-project:asia-northeast1:my-postgres \
-               --set-secrets RAILS_MASTER_KEY=rails-master-key:latest \
+               --set-secrets RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }} \
                --allow-unauthenticated
