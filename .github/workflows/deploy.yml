@@ -36,10 +36,11 @@
          - name: Deploy to Cloud Run
            env:
             IMAGE: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend/rails-api:latest
+            RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
            run: |
              gcloud run deploy rails-api \
                --image=$IMAGE \
                --region=asia-northeast1 \
                --add-cloudsql-instances ishii-worksit-project:asia-northeast1:my-postgres \
-               --set-secrets RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }} \
+               --set-secrets RAILS_MASTER_KEY=RAILS_MASTER_KEY:latest \
                --allow-unauthenticated
