@@ -15,3 +15,5 @@
     --role="roles/iam.serviceAccountTokenCreator" \
     --project=ishii-worksit-proje
     ```
+
+1. SecretはGitHub ActionのSecretsを使用して、Cloud RunのSecret Managerは使用しない
