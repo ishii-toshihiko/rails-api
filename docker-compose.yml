@@ -13,7 +13,6 @@ services:
       - .:/app
     environment:
       TZ: Asia/Tokyo
-      RAILS_ENV: ${PORT}
     depends_on:
       - db
     user: root

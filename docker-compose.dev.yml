@@ -1,0 +1,31 @@
+# version: '3.9'
+
+services:
+  web:
+    env_file:
+      - .env.development
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    command: bash -c "RAILS_ENV=development bundle exec rails s -b 0.0.0.0 -p 3000"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    environment:
+      TZ: Asia/Tokyo
+    depends_on:
+      - db
+    user: root
+
+  db:
+    env_file:
+      - .env.development
+    image: postgres:15
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  db_data:

@@ -2,23 +2,19 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: <%= ENV.fetch("DATABASE_USERNAME") %>
-  password: <%= ENV.fetch("DATABASE_PASSWORD") %>
   port: 5432
+  host: db
+  username: <%= ENV.fetch("POSTGRES_USER") %>
+  password: <%= ENV.fetch("POSTGRES_PASSWORD") %>
 
 development:
   <<: *default
-  database: myapp_development
+  database: <%= ENV.fetch("POSTGRES_DB") %>
 
 test:
   <<: *default
-  database: myapp_test
+  database: <%= ENV.fetch("POSTGRES_DB") %>
 
 production:
-  adapter: postgresql
-  encoding: unicode
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  database: myapp_production
-  username: <%= ENV.fetch("DATABASE_USERNAME") %>
-  password: <%= ENV.fetch("DATABASE_PASSWORD") %>
-  host: /cloudsql/ishii-worksit-project:asia-northeast1:my-postgres
+  <<: *default
+  database: <%= ENV.fetch("POSTGRES_DB") %>
