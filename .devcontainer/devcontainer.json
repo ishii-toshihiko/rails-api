@@ -1,0 +1,7 @@
+{
+    "name": "Rails Dev Container",
+    "dockerComposeFile": ["../docker-compose.dev.yml"],
+    "service": "web",
+    "workspaceFolder": "/app"
+  }
+  
