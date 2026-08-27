@@ -61,8 +61,13 @@ jobs:
             upsert_secret "$name" "${!name}"
           done
 
-          PROJECT_NUMBER="$(gcloud projects describe "$GCP_PROJECT_ID" --format='value(projectNumber)')"
-          RUNTIME_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+          # Cloud Run 未指定時の実行 SA はデフォルト Compute SA。
+          # projects.describe は Cloud Resource Manager API が必要なので使わない。
+          RUNTIME_SA="$(gcloud config get-value account)"
+          if [[ -z "$RUNTIME_SA" || "$RUNTIME_SA" == "(unset)" ]]; then
+            echo "Could not resolve runtime service account from gcloud auth" >&2
+            exit 1
+          fi
 
           for name in SECRET_KEY_BASE POSTGRES_HOST POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD; do
             gcloud secrets add-iam-policy-binding "$name" \
