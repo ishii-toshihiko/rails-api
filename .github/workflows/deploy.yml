@@ -28,18 +28,25 @@
 
          - name: Build and Push Docker image
            env:
-            IMAGE: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend/rails-api:latest
+            IMAGE: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/rails-api:latest
            run: |
              docker build -t $IMAGE .
              docker push $IMAGE
 
          - name: Deploy to Cloud Run
            env:
-            IMAGE: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend/rails-api:latest
+            IMAGE: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/rails-api:latest
            run: |
              gcloud run deploy rails-api \
                --image=$IMAGE \
                --region=asia-northeast1 \
-               --add-cloudsql-instances ishii-worksit-project:asia-northeast1:my-postgres \
-               --set-env-vars "SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }},RAILS_ENV=production,RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }},DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }},DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }},DATABASE_NAME=${{ secrets.DATABASE_NAME }}" \
-               --allow-unauthenticated
+               --network=default \
+               --subnet=default \
+               --vpc-egress=private-ranges-only \
+               --network-tags=cloudrun-rails-api \
+               --max-instances=10 \
+               --min-instances=0 \
+               --cpu=1 \
+               --memory=512Mi \
+               --set-env-vars="RAILS_ENV=production,POSTGRES_HOST=${{ secrets.POSTGRES_HOST }},=${},POSTGRES_PORT=5432,POSTGRES_DB=${{ secrets.POSTGRES_DB }},POSTGRES_USER=${{ secrets.POSTGRES_USER }},RAILS_MAX_THREADS=5,POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}${POSTGRES_PASSWORD}" \
+               --project="${{ secrets.GCP_PROJECT_ID }}"

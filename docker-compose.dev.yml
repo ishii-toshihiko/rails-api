@@ -3,7 +3,7 @@
 services:
   web:
     env_file:
-      - .env.development
+      - /home/ishii/secret/rails-api/.env.development
     build:
       context: ./
       dockerfile: Dockerfile.dev
@@ -16,7 +16,7 @@ services:
     volumes:
       - .:/app
     environment:
-      RUBY_DEBUG_LOCAL_FS_MAP: "/app:/home/ishii/rails-api"
+      RUBY_DEBUG_LOCAL_FS_MAP: "/app:/home/ishii/project/rails-api"
       TZ: Asia/Tokyo
     depends_on:
       - db
@@ -24,7 +24,7 @@ services:
 
   db:
     env_file:
-      - .env.development
+      - /home/ishii/secret/rails-api/.env.development
     image: postgres:15
     volumes:
       - db_data:/var/lib/postgresql/data

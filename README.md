@@ -5,15 +5,15 @@
     --repository-format=docker \
     --location=asia-northeast1 \
     --description="backend docker repo" \
-    --project=ishii-worksit-project
+    --project=yyyy
     ```
 
 1. サービスアカウントにインパーソネーション権限を付与する
     ```sh
     gcloud iam service-accounts add-iam-policy-binding 807313955645-compute@developer.gserviceaccount.com \
-    --member="user:hiko.freebird335@gmail.com" \
+    --member="user:xxxx@gmail.com" \
     --role="roles/iam.serviceAccountTokenCreator" \
-    --project=ishii-worksit-proje
+    --project=yyyy
     ```
 
 1. SecretはGitHub ActionのSecretsを使用して、Cloud RunのSecret Managerは使用しない
