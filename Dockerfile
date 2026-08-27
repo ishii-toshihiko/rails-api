@@ -39,16 +39,7 @@ RUN chmod +x /app/bin/docker-entrypoint
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
 
 ENV PORT=8080
-EXPOSE ${PORT}
+EXPOSE 8080
 
-# # Cloud SQL Auth Proxy を追加
-# RUN curl -o /cloud_sql_proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.8.0/cloud-sql-proxy.linux.amd64 && \
-#     chmod +x /cloud_sql_proxy
-
-# # Cloud SQL ソケットディレクトリを作成
-# RUN mkdir /cloudsql
-# ENV CLOUD_SQL_CONNECTION_NAME=ishii-worksit-project:asia-northeast1:my-postgres
-# ENV INSTANCE_UNIX_SOCKET=/cloudsql/ishii-worksit-project:asia-northeast1:my-postgres
-
-# # 起動時にプロキシをバックグラウンドで起動
-# CMD ["/bin/sh", "-c", "/cloud_sql_proxy --unix-socket=/cloudsql ishii-worksit-project:asia-northeast1:my-postgres & bundle exec rails server -b 0.0.0.0 -p 8080"]
+# Cloud Run は PORT で待受が必要。DB は VPC / POSTGRES_HOST 経由を想定
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "8080"]
