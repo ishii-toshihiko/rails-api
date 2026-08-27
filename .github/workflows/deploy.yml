@@ -61,8 +61,8 @@ jobs:
             upsert_secret "$name" "${!name}"
           done
 
-          # Cloud Run 未指定時の実行 SA はデフォルト Compute SA。
-          # projects.describe は Cloud Resource Manager API が必要なので使わない。
+          # setIamPolicy は Secret Admin 等が必要。権限が無い場合はスキップする。
+          # 初回はプロジェクト Owner が実行 SA に secretAccessor を付与すること。
           RUNTIME_SA="$(gcloud config get-value account)"
           if [[ -z "$RUNTIME_SA" || "$RUNTIME_SA" == "(unset)" ]]; then
             echo "Could not resolve runtime service account from gcloud auth" >&2
@@ -70,11 +70,13 @@ jobs:
           fi
 
           for name in SECRET_KEY_BASE POSTGRES_HOST POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD; do
-            gcloud secrets add-iam-policy-binding "$name" \
+            if ! gcloud secrets add-iam-policy-binding "$name" \
               --member="serviceAccount:${RUNTIME_SA}" \
               --role="roles/secretmanager.secretAccessor" \
               --project="$GCP_PROJECT_ID" \
-              --quiet
+              --quiet; then
+              echo "::warning::Failed to bind secretAccessor on $name for $RUNTIME_SA. Grant it once as project Owner if Cloud Run cannot read secrets."
+            fi
           done
 
       - name: Deploy to Cloud Run
