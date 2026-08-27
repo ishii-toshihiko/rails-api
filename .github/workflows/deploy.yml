@@ -33,6 +33,45 @@ jobs:
           docker build -t $IMAGE .
           docker push $IMAGE
 
+      - name: Upsert Secret Manager secrets
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        run: |
+          upsert_secret() {
+            local name="$1"
+            local value="$2"
+            if gcloud secrets describe "$name" --project="$GCP_PROJECT_ID" >/dev/null 2>&1; then
+              printf '%s' "$value" | gcloud secrets versions add "$name" \
+                --data-file=- \
+                --project="$GCP_PROJECT_ID"
+            else
+              printf '%s' "$value" | gcloud secrets create "$name" \
+                --data-file=- \
+                --replication-policy=automatic \
+                --project="$GCP_PROJECT_ID"
+            fi
+          }
+
+          for name in SECRET_KEY_BASE POSTGRES_HOST POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD; do
+            upsert_secret "$name" "${!name}"
+          done
+
+          PROJECT_NUMBER="$(gcloud projects describe "$GCP_PROJECT_ID" --format='value(projectNumber)')"
+          RUNTIME_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+
+          for name in SECRET_KEY_BASE POSTGRES_HOST POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD; do
+            gcloud secrets add-iam-policy-binding "$name" \
+              --member="serviceAccount:${RUNTIME_SA}" \
+              --role="roles/secretmanager.secretAccessor" \
+              --project="$GCP_PROJECT_ID" \
+              --quiet
+          done
+
       - name: Deploy to Cloud Run
         env:
           IMAGE: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/rails-api/rails-api:latest
@@ -48,5 +87,6 @@ jobs:
             --min-instances=0 \
             --cpu=1 \
             --memory=512Mi \
-            --set-env-vars="RAILS_ENV=production,SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }},POSTGRES_HOST=${{ secrets.POSTGRES_HOST }},POSTGRES_PORT=5432,POSTGRES_DB=${{ secrets.POSTGRES_DB }},POSTGRES_USER=${{ secrets.POSTGRES_USER }},RAILS_MAX_THREADS=5,POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" \
+            --set-env-vars="RAILS_ENV=production,POSTGRES_PORT=5432,RAILS_MAX_THREADS=5" \
+            --set-secrets="SECRET_KEY_BASE=SECRET_KEY_BASE:latest,POSTGRES_HOST=POSTGRES_HOST:latest,POSTGRES_DB=POSTGRES_DB:latest,POSTGRES_USER=POSTGRES_USER:latest,POSTGRES_PASSWORD=POSTGRES_PASSWORD:latest" \
             --project="${{ secrets.GCP_PROJECT_ID }}"
