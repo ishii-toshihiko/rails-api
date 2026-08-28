@@ -1,3 +1,5 @@
+# main ブランチへの push 時に Cloud Run へデプロイする
+# 流れ: 認証 → イメージ build/push → Secret 同期 → Service デプロイ → DB prepare Job
 name: Deploy to Cloud Run
 
 on:
@@ -10,9 +12,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # リポジトリのソースを runner に取得
       - name: Checkout
         uses: actions/checkout@v3
 
+      # --- GCP 認証・CLI セットアップ ---
+      # GitHub Secrets の SA キーで認証し、gcloud / docker push を Artifact Registry 向けに設定
       - name: Auth to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -26,6 +31,8 @@ jobs:
       - name: Configure Docker
         run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev --quiet
 
+      # --- Docker イメージ build / push ---
+      # Artifact Registry (asia-northeast1) に rails-api/rails-api:latest を登録
       - name: Build and Push Docker image
         env:
           IMAGE: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/rails-api/rails-api:latest
@@ -33,6 +40,9 @@ jobs:
           docker build -t $IMAGE .
           docker push $IMAGE
 
+      # --- Secret Manager 同期 ---
+      # GitHub Secrets の値を GCP Secret Manager に作成または新版追加
+      # 続けて Cloud Run 実行 SA に secretAccessor を付与（失敗時は warning のみ）
       - name: Upsert Secret Manager secrets
         env:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -79,10 +89,15 @@ jobs:
             fi
           done
 
+      # --- Cloud Run Service デプロイ ---
+      # VPC 経由で Cloud SQL Private IP に接続（POSTGRES_SSLMODE=disable）
+      # 機密値は --set-secrets、それ以外は --set-env-vars
       - name: Deploy to Cloud Run
         env:
           IMAGE: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/rails-api/rails-api:latest
         run: |
+          # Private IP 宛は VPC 経由（--vpc-egress=private-ranges-only）
+          # 機密値は Secret Manager から環境変数注入（--set-secrets）
           gcloud run deploy rails-api \
             --image=$IMAGE \
             --region=asia-northeast1 \
@@ -98,10 +113,15 @@ jobs:
             --set-secrets="SECRET_KEY_BASE=SECRET_KEY_BASE:latest,POSTGRES_HOST=POSTGRES_HOST:latest,POSTGRES_DB=POSTGRES_DB:latest,POSTGRES_USER=POSTGRES_USER:latest,POSTGRES_PASSWORD=POSTGRES_PASSWORD:latest" \
             --project="${{ secrets.GCP_PROJECT_ID }}"
 
+      # --- Cloud Run Job: db:prepare ---
+      # Service デプロイ後に migration / DB 初期化を1回実行（--wait で完了待ち）
       - name: Run database prepare
         env:
           IMAGE: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/rails-api/rails-api:latest
         run: |
+          # Job 定義の作成・更新
+          # Private IP 宛は VPC 経由（--vpc-egress=private-ranges-only）
+          # 機密値は Secret Manager から環境変数注入（--set-secrets）
           gcloud run jobs deploy rails-api-prepare \
             --image="$IMAGE" \
             --region=asia-northeast1 \
@@ -116,6 +136,7 @@ jobs:
             --max-retries=1 \
             --project="${{ secrets.GCP_PROJECT_ID }}"
 
+          # 実行して db:prepare が成功するまで待機
           gcloud run jobs execute rails-api-prepare \
             --region=asia-northeast1 \
             --wait \

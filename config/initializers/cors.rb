@@ -15,7 +15,7 @@
 # end
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'http://localhost:5173','https://react-portfolio-807313955645.asia-northeast1.run.app', 'https://react-rails-807313955645.asia-northeast1.run.app' # React側のURL
+    origins 'http://localhost:5173','https://react-rails-885483537018.asia-northeast1.run.app' # React側のURL
     resource '*',
       headers: :any,
       methods: %i[get post put patch delete options head],
