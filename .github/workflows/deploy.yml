@@ -94,7 +94,7 @@ jobs:
             --min-instances=0 \
             --cpu=1 \
             --memory=512Mi \
-            --set-env-vars="RAILS_ENV=production,POSTGRES_PORT=5432,RAILS_MAX_THREADS=5" \
+            --set-env-vars="RAILS_ENV=production,POSTGRES_PORT=5432,POSTGRES_SSLMODE=disable,RAILS_MAX_THREADS=5" \
             --set-secrets="SECRET_KEY_BASE=SECRET_KEY_BASE:latest,POSTGRES_HOST=POSTGRES_HOST:latest,POSTGRES_DB=POSTGRES_DB:latest,POSTGRES_USER=POSTGRES_USER:latest,POSTGRES_PASSWORD=POSTGRES_PASSWORD:latest" \
             --project="${{ secrets.GCP_PROJECT_ID }}"
 
@@ -110,7 +110,7 @@ jobs:
             --vpc-egress=private-ranges-only \
             --command=bundle \
             --args=exec,rails,db:prepare \
-            --set-env-vars="RAILS_ENV=production,POSTGRES_PORT=5432" \
+            --set-env-vars="RAILS_ENV=production,POSTGRES_PORT=5432,POSTGRES_SSLMODE=disable,RAILS_MAX_THREADS=5" \
             --set-secrets="SECRET_KEY_BASE=SECRET_KEY_BASE:latest,POSTGRES_HOST=POSTGRES_HOST:latest,POSTGRES_DB=POSTGRES_DB:latest,POSTGRES_USER=POSTGRES_USER:latest,POSTGRES_PASSWORD=POSTGRES_PASSWORD:latest" \
             --tasks=1 \
             --max-retries=1 \
