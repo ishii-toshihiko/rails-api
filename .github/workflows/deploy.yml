@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -32,7 +32,7 @@ jobs:
     steps:
       # リポジトリのソースを runner に取得
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       # --- GCP 認証・CLI セットアップ ---
       # GitHub Secrets の SA キーで認証し、gcloud / docker push を Artifact Registry 向けに設定
