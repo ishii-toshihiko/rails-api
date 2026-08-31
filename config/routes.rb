@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   ## API 向けのトークン認証 (ヘッダーに access-token, client, uid を送る) 用ルートを作る
   namespace :v1, defaults: { format: :json } do     ##  👈/v1/auth/... にアクセスしたとき、Rails が自動的に JSON として扱う
     mount_devise_token_auth_for "User", at: "auth", controllers: {
-        sessions: 'v1/auth/sessions', registrations: 'v1/auth/registrations'
+        sessions: "v1/auth/sessions", registrations: "v1/auth/registrations"
     }
     resources :skills
   end

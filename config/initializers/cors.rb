@@ -15,8 +15,9 @@
 # end
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'http://localhost:5173','https://react-rails-885483537018.asia-northeast1.run.app' # React側のURL
-    resource '*',
+    # ローカル開発 + Cloud Run の react-rails URL（デプロイ URL 変更時は更新して rails-api を再デプロイ）
+    origins "http://localhost:5173", "https://react-rails-885483537018.asia-northeast1.run.app"
+    resource "*",
       headers: :any,
       methods: %i[get post put patch delete options head],
       credentials: true,

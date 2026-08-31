@@ -16,7 +16,7 @@ module V1
       if @skill
         render json: @skill
       else
-        render json: { error: 'Skill not found' }, status: :not_found
+        render json: { error: "Skill not found" }, status: :not_found
       end
     end
   end
