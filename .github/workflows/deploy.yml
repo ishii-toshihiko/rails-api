@@ -1,5 +1,5 @@
 # main ブランチへの push 時に Cloud Run へデプロイする
-# 流れ: 認証 → イメージ build/push → Secret 同期 → Service デプロイ → DB prepare Job
+# 流れ: RuboCop → 認証 → イメージ build/push → Secret 同期 → Service デプロイ → DB prepare Job
 name: Deploy to Cloud Run
 
 on:
@@ -8,7 +8,25 @@ on:
       - main
 
 jobs:
+  # --- RuboCop（デプロイ前ゲート） ---
+  rubocop:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3.0"
+          bundler-cache: true
+
+      - name: Run RuboCop
+        run: bin/rubocop
+
   build-and-deploy:
+    needs: rubocop
     runs-on: ubuntu-latest
 
     steps:
