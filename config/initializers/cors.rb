@@ -15,8 +15,11 @@
 # end
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    # ローカル開発 + Cloud Run の react-rails URL（デプロイ URL 変更時は更新して rails-api を再デプロイ）
-    origins "http://localhost:5173", "https://react-rails-885483537018.asia-northeast1.run.app"
+    # ローカル開発 + Firebase Hosting + Cloud Run 旧フロント（origin 変更時は rails-api を再デプロイ）
+    origins "http://localhost:5173",
+            "https://ishii-portfolio.web.app",
+            "https://ishii-portfolio.firebaseapp.com",
+            "https://react-rails-885483537018.asia-northeast1.run.app"
     resource "*",
       headers: :any,
       methods: %i[get post put patch delete options head],
