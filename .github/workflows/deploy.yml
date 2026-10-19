@@ -151,26 +151,21 @@ jobs:
           done
 
       # --- Cloud Run Service デプロイ ---
-      # VPC 経由で Cloud SQL Private IP に接続（POSTGRES_SSLMODE=disable）
+      # Neon（パブリック Postgres）へ SSL 接続（POSTGRES_SSLMODE=require）
       # 機密値は --set-secrets、それ以外は --set-env-vars
       - name: Deploy to Cloud Run
         env:
           IMAGE: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/rails-api/rails-api:latest
         run: |
-          # Private IP 宛は VPC 経由（--vpc-egress=private-ranges-only）
           # 機密値は Secret Manager から環境変数注入（--set-secrets）
           gcloud run deploy rails-api \
             --image=$IMAGE \
             --region=asia-northeast1 \
-            --network=default \
-            --subnet=default \
-            --vpc-egress=private-ranges-only \
-            --network-tags=cloudrun-rails-api \
             --max-instances=10 \
             --min-instances=0 \
             --cpu=1 \
             --memory=512Mi \
-            --set-env-vars="RAILS_ENV=production,POSTGRES_PORT=5432,POSTGRES_SSLMODE=disable,RAILS_MAX_THREADS=5" \
+            --set-env-vars="RAILS_ENV=production,POSTGRES_PORT=5432,POSTGRES_SSLMODE=require,RAILS_MAX_THREADS=5" \
             --set-secrets="SECRET_KEY_BASE=SECRET_KEY_BASE:latest,POSTGRES_HOST=POSTGRES_HOST:latest,POSTGRES_DB=POSTGRES_DB:latest,POSTGRES_USER=POSTGRES_USER:latest,POSTGRES_PASSWORD=POSTGRES_PASSWORD:latest" \
             --project="${{ secrets.GCP_PROJECT_ID }}"
 
@@ -181,17 +176,13 @@ jobs:
           IMAGE: asia-northeast1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/rails-api/rails-api:latest
         run: |
           # Job 定義の作成・更新
-          # Private IP 宛は VPC 経由（--vpc-egress=private-ranges-only）
           # 機密値は Secret Manager から環境変数注入（--set-secrets）
           gcloud run jobs deploy rails-api-prepare \
             --image="$IMAGE" \
             --region=asia-northeast1 \
-            --network=default \
-            --subnet=default \
-            --vpc-egress=private-ranges-only \
             --command=bundle \
             --args=exec,rails,db:prepare \
-            --set-env-vars="RAILS_ENV=production,POSTGRES_PORT=5432,POSTGRES_SSLMODE=disable,RAILS_MAX_THREADS=5" \
+            --set-env-vars="RAILS_ENV=production,POSTGRES_PORT=5432,POSTGRES_SSLMODE=require,RAILS_MAX_THREADS=5" \
             --set-secrets="SECRET_KEY_BASE=SECRET_KEY_BASE:latest,POSTGRES_HOST=POSTGRES_HOST:latest,POSTGRES_DB=POSTGRES_DB:latest,POSTGRES_USER=POSTGRES_USER:latest,POSTGRES_PASSWORD=POSTGRES_PASSWORD:latest" \
             --tasks=1 \
             --max-retries=1 \

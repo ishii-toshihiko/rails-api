@@ -19,4 +19,4 @@ production:
   <<: *default
   host: <%= ENV.fetch("POSTGRES_HOST") %>
   database: <%= ENV.fetch("POSTGRES_DB") %>
-  sslmode: <%= ENV.fetch("POSTGRES_SSLMODE", "disable") %>
+  sslmode: <%= ENV.fetch("POSTGRES_SSLMODE", "require") %>

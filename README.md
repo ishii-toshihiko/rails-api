@@ -38,6 +38,6 @@ Service デプロイ後、Cloud Run Job で DB 準備を行う。
 | Job 名 | `rails-api-prepare` |
 | コマンド | `bundle exec rails db:prepare` |
 | 実行タイミング | デプロイ workflow 内（`gcloud run jobs execute --wait`） |
-| 接続 | VPC 経由の Cloud SQL Private IP（`POSTGRES_SSLMODE=disable`） |
+| 接続 | Neon（パブリック Postgres、`POSTGRES_SSLMODE=require`） |
 
 Job が失敗すると GitHub Actions 全体も失敗する。ログは Cloud Console → Cloud Run → Jobs → `rails-api-prepare` の実行履歴から確認できる。

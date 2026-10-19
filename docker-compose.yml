@@ -13,6 +13,8 @@ services:
       - .:/app
     environment:
       TZ: Asia/Tokyo
+      # ローカル Postgres は SSL なし。Cloud Run / Neon は deploy.yml で require
+      POSTGRES_SSLMODE: disable
     depends_on:
       - db
     user: root
