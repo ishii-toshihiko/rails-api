@@ -10,7 +10,7 @@ Rails.application.routes.draw do
         sessions: "v1/auth/sessions", registrations: "v1/auth/registrations"
     }
     resources :skills
-    resources :page_views, only: [:create]
+    resources :page_views, only: [ :create ]
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
