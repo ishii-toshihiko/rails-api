@@ -19,7 +19,9 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     origins "http://localhost:5173",
             "https://ishii-portfolio.web.app",
             "https://ishii-portfolio.firebaseapp.com",
-            "https://react-rails-885483537018.asia-northeast1.run.app"
+            "https://react-rails-885483537018.asia-northeast1.run.app",
+            "https://ishii-portfolio-front.web.app",
+            "https://ishii-portfolio-front.firebaseapp.com"
     resource "*",
       headers: :any,
       methods: %i[get post put patch delete options head],
