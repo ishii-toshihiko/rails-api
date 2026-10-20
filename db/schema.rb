@@ -10,9 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_14_051639) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_20_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "page_views", force: :cascade do |t|
+    t.string "path", null: false
+    t.bigint "count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["path"], name: "index_page_views_on_path", unique: true
+  end
 
   create_table "skills", force: :cascade do |t|
     t.string "category"
