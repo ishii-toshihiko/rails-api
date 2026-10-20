@@ -112,6 +112,9 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          CONTACT_TO_EMAIL: ${{ secrets.CONTACT_TO_EMAIL }}
+          CONTACT_FROM_EMAIL: ${{ secrets.CONTACT_FROM_EMAIL }}
         run: |
           upsert_secret() {
             local name="$1"
@@ -123,12 +126,12 @@ jobs:
             else
               printf '%s' "$value" | gcloud secrets create "$name" \
                 --data-file=- \
-                --replication-policy=automatic \
                 --project="$GCP_PROJECT_ID"
             fi
           }
 
-          for name in SECRET_KEY_BASE POSTGRES_HOST POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD; do
+          for name in SECRET_KEY_BASE POSTGRES_HOST POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD \
+            RESEND_API_KEY CONTACT_TO_EMAIL CONTACT_FROM_EMAIL; do
             upsert_secret "$name" "${!name}"
           done
 
@@ -140,7 +143,8 @@ jobs:
             exit 1
           fi
 
-          for name in SECRET_KEY_BASE POSTGRES_HOST POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD; do
+          for name in SECRET_KEY_BASE POSTGRES_HOST POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD \
+            RESEND_API_KEY CONTACT_TO_EMAIL CONTACT_FROM_EMAIL; do
             if ! gcloud secrets add-iam-policy-binding "$name" \
               --member="serviceAccount:${RUNTIME_SA}" \
               --role="roles/secretmanager.secretAccessor" \
@@ -166,7 +170,7 @@ jobs:
             --cpu=1 \
             --memory=512Mi \
             --set-env-vars="RAILS_ENV=production,POSTGRES_PORT=5432,POSTGRES_SSLMODE=require,RAILS_MAX_THREADS=5" \
-            --set-secrets="SECRET_KEY_BASE=SECRET_KEY_BASE:latest,POSTGRES_HOST=POSTGRES_HOST:latest,POSTGRES_DB=POSTGRES_DB:latest,POSTGRES_USER=POSTGRES_USER:latest,POSTGRES_PASSWORD=POSTGRES_PASSWORD:latest" \
+            --set-secrets="SECRET_KEY_BASE=SECRET_KEY_BASE:latest,POSTGRES_HOST=POSTGRES_HOST:latest,POSTGRES_DB=POSTGRES_DB:latest,POSTGRES_USER=POSTGRES_USER:latest,POSTGRES_PASSWORD=POSTGRES_PASSWORD:latest,RESEND_API_KEY=RESEND_API_KEY:latest,CONTACT_TO_EMAIL=CONTACT_TO_EMAIL:latest,CONTACT_FROM_EMAIL=CONTACT_FROM_EMAIL:latest" \
             --project="${{ secrets.GCP_PROJECT_ID }}"
 
       # --- Cloud Run Job: db:prepare ---

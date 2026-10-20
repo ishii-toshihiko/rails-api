@@ -11,6 +11,7 @@ Rails.application.routes.draw do
     }
     resources :skills
     resources :page_views, only: [ :create ]
+    resources :contacts, only: [ :create ]
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
