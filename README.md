@@ -2,20 +2,25 @@
 
 個人ポートフォリオサイト向けの **Rails API** です。フロント（React）から認証・スキル取得・アクセス計測・お問合せ送信を受け付けます。
 
+**案件向けの読み物（フロント側）:** [react-rails / CASE_STUDY.md](https://github.com/ishii-toshihiko/react-rails/blob/main/CASE_STUDY.md)
+
 | 項目 | 内容 |
 |------|------|
 | 役割 | JSON API（RESTful） |
 | フロント | [react-rails](https://github.com/ishii-toshihiko/react-rails)（Firebase Hosting） |
 | デモ | フロント: [ishii-portfolio-front.web.app](https://ishii-portfolio-front.web.app) |
+| 担当範囲 | API 設計・認証・DB・メール送信・Cloud Run / Secret Manager デプロイ |
+| お問合せ | デモの Contact フォーム経由（本 API の `POST /v1/contacts`） |
 
 ## 技術スタック
 
 - Ruby on Rails 7（API モード）
-- PostgreSQL（Neon）
+- PostgreSQL（本デモは Neon。案件では Cloud SQL も選択可）
 - Devise Token Auth
 - Cloud Run + Artifact Registry + GitHub Actions
 - Secret Manager
 - Resend（お問合せメール・HTTPS API）
+- RSpec / RuboCop（CI）
 
 ## 主な機能
 
@@ -33,6 +38,11 @@ Browser (Firebase Hosting)
       → Neon (Postgres)
       → Resend (contact email)
 ```
+
+## 品質ゲート（CI）
+
+`main` への push で deploy 前に RuboCop / RSpec を実行します。  
+フロント側は Playwright スモークを deploy 前に実行（詳細は [CASE_STUDY.md](https://github.com/ishii-toshihiko/react-rails/blob/main/CASE_STUDY.md)）。
 
 ## 担当・ポイント
 
