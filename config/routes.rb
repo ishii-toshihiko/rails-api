@@ -9,7 +9,13 @@ Rails.application.routes.draw do
     mount_devise_token_auth_for "User", at: "auth", controllers: {
         sessions: "v1/auth/sessions", registrations: "v1/auth/registrations"
     }
-    resources :skills
+    resources :skills, only: %i[index show]
+    resources :skill_drafts, only: %i[index create update destroy] do
+      collection do
+        post :publish
+        post :reset
+      end
+    end
     resources :page_views, only: [ :create ]
     resources :contacts, only: [ :create ]
   end

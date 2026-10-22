@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module V1
+  # 公開スキル（閲覧者向け）。書き込みは skill_drafts + オーナー公開のみ。
   class SkillsController < ApplicationController
-    before_action :authenticate_user!, except: %i[index show]
-    before_action :set_skill, only: %i[show update destroy]
+    before_action :set_skill, only: :show
 
     def index
       render json: Skill.order(:id)
@@ -13,31 +13,6 @@ module V1
       render json: @skill
     end
 
-    def create
-      form = Skills::SkillForm.new(skill_params)
-      unless form.valid?
-        return render json: { error: "Invalid request" }, status: :unprocessable_entity
-      end
-
-      skill = Skill.create!(form.to_skill_attributes)
-      render json: skill, status: :created
-    end
-
-    def update
-      form = Skills::SkillForm.new(skill_params)
-      unless form.valid?
-        return render json: { error: "Invalid request" }, status: :unprocessable_entity
-      end
-
-      @skill.update!(form.to_skill_attributes)
-      render json: @skill
-    end
-
-    def destroy
-      @skill.destroy!
-      head :no_content
-    end
-
     private
 
     def set_skill
@@ -45,10 +20,6 @@ module V1
       return if @skill
 
       render json: { error: "Skill not found" }, status: :not_found
-    end
-
-    def skill_params
-      params.permit(:category, :item, :term)
     end
   end
 end

@@ -25,7 +25,11 @@
 ## 主な機能
 
 - トークン認証（登録 / ログイン / ログアウト）
-- スキル API（`GET /v1/skills` は公開。作成・更新・削除はトークン認証必須）
+- スキル API
+  - `GET /v1/skills` は公開（閲覧者向けの確定データ）
+  - `/v1/skill_drafts` はログインユーザーごとの下書き CRUD
+  - `POST /v1/skill_drafts/publish` は `SKILLS_OWNER_EMAIL` のオーナーのみ（公開へ反映）
+  - `POST /v1/skill_drafts/reset` で公開内容を自分の下書きへ再同期
 - ページビュー計測（`POST /v1/page_views`）
 - お問合せ受付（`POST /v1/contacts` → Resend → 担当者メール）
   - バリデーション・honeypot・簡易レート制限
