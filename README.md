@@ -2,7 +2,7 @@
 
 個人ポートフォリオサイト向けの **Rails API** です。フロント（React）から認証・スキル取得・アクセス計測・お問合せ送信を受け付けます。
 
-**案件向けの読み物（フロント側）:** [react-rails / CASE_STUDY.md](https://github.com/ishii-toshihiko/react-rails/blob/main/CASE_STUDY.md)
+**案件向けの読み物（フロント側）:** [react-rails / CASE_STUDY.md](https://github.com/ishii-toshihiko/react-rails/blob/main/CASE_STUDY.md)（[運用節](https://github.com/ishii-toshihiko/react-rails/blob/main/CASE_STUDY.md#8-運用)・[運用メモ](https://github.com/ishii-toshihiko/react-rails/blob/main/docs/%E9%81%8B%E7%94%A8%E3%83%A1%E3%83%A2.md)）
 
 | 項目 | 内容 |
 |------|------|
@@ -10,7 +10,8 @@
 | フロント | [react-rails](https://github.com/ishii-toshihiko/react-rails)（Firebase Hosting） |
 | デモ | フロント: [ishii-portfolio-front.web.app](https://ishii-portfolio-front.web.app) |
 | 担当範囲 | API 設計・認証・DB・メール送信・Cloud Run / Secret Manager デプロイ |
-| お問合せ | デモの Contact フォーム経由（本 API の `POST /v1/contacts`） |
+| 想定規模 | 小〜中規模の Rails API + React |
+| お問合せ | デモの [Contact](https://ishii-portfolio-front.web.app/contact) 経由（本 API の `POST /v1/contacts`。実メールは非公開） |
 
 ## 技術スタック
 
@@ -45,8 +46,10 @@ Browser (Firebase Hosting)
 
 ## 品質ゲート（CI）
 
-`main` への push で deploy 前に RuboCop / RSpec を実行します。  
-フロント側は Playwright スモークを deploy 前に実行（詳細は [CASE_STUDY.md](https://github.com/ishii-toshihiko/react-rails/blob/main/CASE_STUDY.md)）。
+`main` への push で **Cloud Run デプロイ前**に RuboCop / RSpec を実行します。  
+フロント側は lint / knip / Playwright を Hosting デプロイ前に実行（詳細は [CASE_STUDY 運用節](https://github.com/ishii-toshihiko/react-rails/blob/main/CASE_STUDY.md#8-運用)）。
+
+ログは主に **Cloud Logging**（Cloud Run）で確認します。障害時の切り分けはフロント側 [運用メモ](https://github.com/ishii-toshihiko/react-rails/blob/main/docs/%E9%81%8B%E7%94%A8%E3%83%A1%E3%83%A2.md) を参照。
 
 ## 担当・ポイント
 
